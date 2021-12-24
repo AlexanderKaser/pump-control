@@ -20,10 +20,10 @@ unsigned long scan_timer_ = 0;
 unsigned long button1_timer_ = 0;
 unsigned long button2_timer_ = 0;
 unsigned long pump1_timer_ = 0;
-
+//TODO: rename to state_ 
 int pump1_state = 0; //0 = automatik, 1 = manuell ein, 2 = manuell aus, 3 = automatik ein, 4 = automatik aus
 int pump2_state = 0;
-
+//TODO: this variable can be in local scope
 long dist_cm = 0;
 
 void setup() {
@@ -43,7 +43,7 @@ void setup() {
   Serial.begin(9600);
   delay(1000);
 }
-
+//TODO: add parameter distance
 void automatik() {                            // derzeit nur für PUMPE 1!!
   unsigned long timespan_pump1 = millis() - pump1_timer_;
 
@@ -71,7 +71,7 @@ void automatik() {                            // derzeit nur für PUMPE 1!!
     lcd.print("Fehler 418      ");
   }
 }
-
+//TODO: change return type from void to long and return the distance and rename the function to print_distance
 void get_Distance() {
   unsigned long time_span = millis() - scan_timer_;
   long duration = 0;
@@ -157,6 +157,7 @@ void loop() {
       }
     }
   }
+  //TODO pass the returned distance to automatic
   get_Distance();
   automatik();
 
