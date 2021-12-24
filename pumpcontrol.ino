@@ -20,11 +20,9 @@ unsigned long scan_timer_ = 0;
 unsigned long button1_timer_ = 0;
 unsigned long button2_timer_ = 0;
 unsigned long pump1_timer_ = 0;
-//TODO: rename to state_ 
+//TODO: rename to state_ and add an enum for the single states (0 = automatik, 1 = manuell ein, 2 = manuell aus, 3 = automatik ein, 4 = automatik aus)
 int pump1_state = 0; //0 = automatik, 1 = manuell ein, 2 = manuell aus, 3 = automatik ein, 4 = automatik aus
 int pump2_state = 0;
-//TODO: this variable can be in local scope
-long dist_cm = 0;
 
 void setup() {
   pinMode(TRIGGER_PIN, OUTPUT);
@@ -43,11 +41,11 @@ void setup() {
   Serial.begin(9600);
   delay(1000);
 }
-//TODO: add parameter distance
-void automatik() {                            // derzeit nur für PUMPE 1!!
+
+void automatik(long distance_cm) {                            // derzeit nur für PUMPE 1!!
   unsigned long timespan_pump1 = millis() - pump1_timer_;
 
-  if (dist_cm >= 2 && dist_cm < 50) {       // wenn Distanz passt...
+  if (distance_cm >= 2 && distance_cm < 50) {       // wenn Distanz passt...
     if (timespan_pump1 > PUMP1_ON) {        // ... und Zeit passt...
       if (pump1_state == 4 || pump1_state == 0) {   // und Pumpe vorher nicht an war oder per Hand gerade auf Automatik gestellt wurde...
         digitalWrite(PUMP1_PIN, LOW);             // wird Pumpe eingeschaltet
@@ -71,8 +69,8 @@ void automatik() {                            // derzeit nur für PUMPE 1!!
     lcd.print("Fehler 418      ");
   }
 }
-//TODO: change return type from void to long and return the distance and rename the function to print_distance
-void get_Distance() {
+
+long get_distance() {
   unsigned long time_span = millis() - scan_timer_;
   long duration = 0;
   long distance = 0;
@@ -85,14 +83,15 @@ void get_Distance() {
     digitalWrite(TRIGGER_PIN, LOW);
     duration = pulseIn(ECHO_PIN, HIGH); //returns micros
     distance = ((duration / 2.) * 0.03432) + 0.5; // +0.5 zum Runden
-    dist_cm = distance;
-
+    
     lcd.setCursor(0, 1);
     lcd.print("Abstand: ");
     lcd.print(distance);
     lcd.print(" cm  ");
     scan_timer_ = millis();
+    
   }
+  return distance;
 }
 
 void loop() {
@@ -157,8 +156,6 @@ void loop() {
       }
     }
   }
-  //TODO pass the returned distance to automatic
-  get_Distance();
-  automatik();
+  automatik(get_Distance());
 
 }
